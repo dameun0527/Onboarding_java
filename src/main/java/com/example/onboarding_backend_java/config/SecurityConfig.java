@@ -1,6 +1,7 @@
 package com.example.onboarding_backend_java.config;
 
 import com.example.onboarding_backend_java.security.jwt.JWTAuthenticationFilter;
+import com.example.onboarding_backend_java.security.jwt.JWTAuthorizationFilter;
 import com.example.onboarding_backend_java.security.jwt.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -46,6 +47,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/sign", "/", "/signup").permitAll()
                         .anyRequest().authenticated())
+                .addFilterBefore(new JWTAuthorizationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
