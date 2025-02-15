@@ -1,4 +1,10 @@
 package com.example.onboarding_backend_java.dto;
 
-public record SignupResponseDto() {
+import java.util.List;
+
+public record SignupResponseDto(
+        String username,
+        String nickname,
+        List<AuthorityDto> authorities
+) {
 }
