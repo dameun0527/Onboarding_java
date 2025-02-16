@@ -1,6 +1,7 @@
 package com.example.onboarding_backend_java.security;
 
 import com.example.onboarding_backend_java.entity.User;
+import com.example.onboarding_backend_java.security.jwt.JWTUtil;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
