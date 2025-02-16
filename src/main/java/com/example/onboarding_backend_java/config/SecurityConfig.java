@@ -48,7 +48,7 @@ public class SecurityConfig {
                 .formLogin((auth) -> auth.disable())
                 .httpBasic((auth) -> auth.disable())
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/sign", "/", "/signup", "/refresh").permitAll()
+                        .requestMatchers("/sign", "/", "/signup", "/refresh", "/api/test").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(new JWTAuthorizationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(jwtFilter, UsernamePasswordAuthenticationFilter.class)
