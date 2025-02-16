@@ -1,6 +1,5 @@
 package com.example.onboarding_backend_java.config;
 
-import com.example.onboarding_backend_java.security.jwt.JWTAuthenticationFilter;
 import com.example.onboarding_backend_java.security.jwt.JWTAuthorizationFilter;
 import com.example.onboarding_backend_java.security.jwt.JWTUtil;
 import com.example.onboarding_backend_java.security.jwt.refresh.RefreshService;
@@ -39,9 +38,6 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        JWTAuthenticationFilter jwtFilter =
-                new JWTAuthenticationFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshService);
-        jwtFilter.setFilterProcessesUrl("/sign");
 
         http
                 .csrf((auth) -> auth.disable())
@@ -51,7 +47,6 @@ public class SecurityConfig {
                         .requestMatchers("/sign", "/", "/signup", "/refresh", "/api/test").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(new JWTAuthorizationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAt(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
