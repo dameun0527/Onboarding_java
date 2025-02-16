@@ -1,13 +1,14 @@
 package com.example.onboarding_backend_java.security.jwt;
 
 import com.example.onboarding_backend_java.dto.SignRequestDto;
-import com.example.onboarding_backend_java.security.CustomUserDetails;
+import com.example.onboarding_backend_java.security.jwt.refresh.RefreshService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,12 +20,15 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 
+import static com.example.onboarding_backend_java.security.jwt.refresh.CookieUtil.createCookie;
+
 @Slf4j
 @RequiredArgsConstructor
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
+    private final RefreshService refreshService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
@@ -53,8 +57,8 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             HttpServletResponse response,
             FilterChain chain,
             Authentication authentication) throws IOException {
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        String username = customUserDetails.getUsername();
+
+        String username = authentication.getName();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
@@ -63,11 +67,18 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String role = auth.getAuthority();
         log.info("successfulAuthentication: username={}, role={}", username, role);
 
-        String token = jwtUtil.createToken(username, role, 60 * 60 * 10 * 1000L);
-        log.info("Generated token: {}", token);
+        String accessToken = jwtUtil.createToken("access", username, role, 600000L);
+        log.info("Generated accessToken: {}", accessToken);
 
-        response.setContentType("application/json;charset=UTF-8");
-        response.getWriter().write("{\"token\":\"" + token + "\"}");
+        String refreshToken = jwtUtil.createToken("refresh", username, role, 86400000L);
+        log.info("Generated refreshToken: {}", refreshToken);
+
+        refreshService.deleteRefreshToken(refreshToken);
+        refreshService.saveRefreshToken(username, refreshToken, 86400000L);
+
+        response.setHeader("access", accessToken);
+        response.addCookie(createCookie("refresh", refreshToken));
+        response.setStatus(HttpStatus.OK.value());
     }
 
     @Override

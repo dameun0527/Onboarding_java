@@ -51,11 +51,12 @@ public class JWTUtil {
                 .before(new Date());
     }
 
-    public String createToken(String username, String role, Long expiredMs) {
+    public String createToken(String category, String username, String role, Long expiredMs) {
         Claims claims = Jwts.claims();
+        claims.put("category", category);
         claims.put("username", username);
         claims.put("role", role);
-        log.info("Creating token with claims: {}", claims);
+        log.info("Creating token for category: {}, username: {}, role: {}", category, username, role);
 
         String token = Jwts.builder()
                 .setClaims(claims)
@@ -65,6 +66,15 @@ public class JWTUtil {
                 .compact();
         log.info("Token created successfully");
         return token;
+    }
+
+    public String getCategory(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("category", String.class);
     }
 
 }
