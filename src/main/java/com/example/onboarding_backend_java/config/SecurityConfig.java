@@ -3,6 +3,7 @@ package com.example.onboarding_backend_java.config;
 import com.example.onboarding_backend_java.security.jwt.JWTAuthenticationFilter;
 import com.example.onboarding_backend_java.security.jwt.JWTAuthorizationFilter;
 import com.example.onboarding_backend_java.security.jwt.JWTUtil;
+import com.example.onboarding_backend_java.security.jwt.refresh.RefreshService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +23,8 @@ public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
+    private final RefreshService refreshService;
+
 
 
     @Bean
@@ -37,7 +40,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         JWTAuthenticationFilter jwtFilter =
-                new JWTAuthenticationFilter(authenticationManager(authenticationConfiguration), jwtUtil);
+                new JWTAuthenticationFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshService);
         jwtFilter.setFilterProcessesUrl("/sign");
 
         http
@@ -45,7 +48,7 @@ public class SecurityConfig {
                 .formLogin((auth) -> auth.disable())
                 .httpBasic((auth) -> auth.disable())
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/sign", "/", "/signup").permitAll()
+                        .requestMatchers("/sign", "/", "/signup", "/refresh").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(new JWTAuthorizationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(jwtFilter, UsernamePasswordAuthenticationFilter.class)
