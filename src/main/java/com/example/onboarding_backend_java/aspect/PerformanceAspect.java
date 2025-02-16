@@ -23,7 +23,7 @@ public class PerformanceAspect {
                 joinPoint.getSignature().getDeclaringTypeName(),
                 joinPoint.getSignature().getName(),
                 duration);
-        
+
         return result;
     }
 }

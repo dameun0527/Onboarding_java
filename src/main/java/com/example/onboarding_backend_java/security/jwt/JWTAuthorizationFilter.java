@@ -77,7 +77,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 
             filterChain.doFilter(request, response);
 
-        } catch(JwtException e) {
+        } catch (JwtException e) {
             log.error("인가 중 서버 및 내부 오류 발생: ", e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.setContentType("application/json");
