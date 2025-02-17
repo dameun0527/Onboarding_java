@@ -8,6 +8,7 @@ class OnboardingBackendJavaApplicationTests {
 
     @Test
     void contextLoads() {
+        System.out.println("Test is running");
     }
 
 }
